@@ -1,8 +1,8 @@
 <style>
     .container {
         position: absolute;
-        width: 80vw;
-        height: 70vh;
+        width: 70vw;
+        height: 60vh;
         z-index: 10;
         border-radius: 2ch;
         left: 50%;
