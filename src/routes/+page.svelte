@@ -9,9 +9,8 @@
         PlayCircle,
     } from "svelte-hero-icons";
 
-    import { tweened } from 'svelte/motion';
-	import { linear } from 'svelte/easing';
-
+    import { tweened } from "svelte/motion";
+    import { linear } from "svelte/easing";
 
     import SpotifyLogin from "../components/SpotifyLogin.svelte";
     import { setAccessToken } from "../spotifyUtils";
@@ -30,9 +29,9 @@
     let playing = true;
     // let percentage = 0;
     const percentage = tweened(0, {
-		duration: 1000,
-		easing: linear
-	});
+        duration: 1000,
+        easing: linear,
+    });
     let duration = 214007;
     let position = 35926;
     let shuffle = false;
@@ -71,14 +70,20 @@
         if (playing) {
             console.log("tick");
             position = position + 1000;
-            percentage.set(((position * 100) / duration))        }
+            percentage.set((position * 100) / duration);
+        }
     }
 
     function updatePlayerState(state) {
         title = state.track_window.current_track.name;
         artist = state.track_window.current_track.artists[0].name;
         // artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
-        artwork = state.track_window.current_track.album.images[findLargestImageIndex(state.track_window.current_track.album.images)].url;
+        artwork =
+            state.track_window.current_track.album.images[
+                findLargestImageIndex(
+                    state.track_window.current_track.album.images
+                )
+            ].url;
         albumTitle = state.track_window.current_track.album.name;
         // albumDetails = "Aran · 2020";
         playing = !state.paused;
@@ -91,7 +96,9 @@
     }
 
     function findLargestImageIndex(arr) {
-        return arr.map(o => o.height).indexOf(Math.max(...arr.map(o => o.height)))
+        return arr
+            .map((o) => o.height)
+            .indexOf(Math.max(...arr.map((o) => o.height)));
     }
 
     // if (authCode) {
@@ -118,7 +125,7 @@
             "code"
         );
         if (authCode) {
-            setAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode); 
+            setAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode);
             window.history.replaceState({}, document.title);
             authState = "waiting";
         }
@@ -237,10 +244,11 @@
     <!-- TODO: aria-label for buttons-->
 
     <div class="controls">
-        <button class="side" on:click={ () => {
-            player.previousTrack()
-        }}
-            ><Icon src={Backward} solid size="80" fill="#fbfcfc" /></button
+        <button
+            class="side"
+            on:click={() => {
+                player.previousTrack();
+            }}><Icon src={Backward} solid size="80" fill="#fbfcfc" /></button
         >
         <button class="play" on:click={handlePlay}>
             {#if playing}
@@ -252,10 +260,11 @@
             {/if}
         </button>
 
-        <button class="side" on:click={ () => {
-            player.nextTrack()
-        }}
-            ><Icon src={Forward} solid size="80" fill="#fbfcfc" /></button
+        <button
+            class="side"
+            on:click={() => {
+                player.nextTrack();
+            }}><Icon src={Forward} solid size="80" fill="#fbfcfc" /></button
         >
     </div>
 </div>
