@@ -13,9 +13,10 @@
     import { linear } from "svelte/easing";
 
     import SpotifyLogin from "../components/SpotifyLogin.svelte";
-    import { setAccessToken } from "../spotifyUtils";
+    import { SpotifyAuth, SpotifyPlayer } from "../spotifyUtils";
+
     import { SvelteToast } from "@zerodevx/svelte-toast";
-    import { toast } from "@zerodevx/svelte-toast"; //optional
+    import { toast } from "@zerodevx/svelte-toast";
 
     import { UAParser } from "ua-parser-js";
 
@@ -29,13 +30,13 @@
     let playing = true;
     // let percentage = 0;
     const percentage = tweened(0, {
-        duration: 1000,
+        duration: 1000, // 1000 because of update interval, and to make the animation smooth even when changing playback device
         easing: linear,
     });
     let duration = 214007;
     let position = 35926;
     let shuffle = false;
-    let loop = false;
+    let repeat = false;
     let disallows = {
         pausing: false,
         peeking_next: false,
@@ -60,15 +61,23 @@
         }
     }
     function handleShuffle() {
-        shuffle = !shuffle;
+
     }
-    function handleLoop() {
-        loop = !loop;
+    function handlerepeat() {
+        if(repeat == 0) {
+            repeat = 1
+            SpotifyPlayer.setRepeat('context')
+        } else if (repeat == 1) {
+            repeat = 2
+            SpotifyPlayer.setRepeat('track')
+        } else if (repeat = 2) {
+            repeat = 0
+            SpotifyPlayer.setRepeat('off')
+        }
     }
     setInterval(updatePosition, 1000); // this is probably bad? I don't actually know but this could pose potential performance issues
     function updatePosition() {
         if (playing) {
-            console.log("tick");
             position = position + 1000;
             percentage.set((position * 100) / duration);
         }
@@ -91,7 +100,7 @@
         duration = state.duration;
         position = state.position;
         shuffle = state.shuffle;
-        loop = state.repeat_mode;
+        repeat = state.repeat_mode;
         console.log(state);
     }
 
@@ -118,18 +127,18 @@
         // const result = uap.getResult()
         return `${uap.browser.name} · ${uap.os.name}`;
     }
-    window.onSpotifyWebPlaybackSDKReady = () => {
+    window.onSpotifyWebPlaybackSDKReady = async function() {
         console.log("sdk ready");
         // auth to spotify
         const authCode = new URLSearchParams(window.location.search).get(
             "code"
         );
         if (authCode) {
-            setAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode);
+            await SpotifyAuth.setAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode);
             window.history.replaceState({}, document.title);
             authState = "waiting";
         }
-        const token = localStorage.getItem("access-token"); //FIXME: sometimes this is undefined and we can't auth; funnly enough it works when spam clicking after logging in? | TODO: I don't this persists? maybe token is getting expired
+        const token = localStorage.getItem("access-token"); // TODO: token callback should check if token is still valid and refresh it
         player = new Spotify.Player({
             name: `CleanPlayer (${getUserAgent()}) `,
             getOAuthToken: (cb) => {
@@ -198,6 +207,17 @@
         }
     </style>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <!-- Google icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300,0,0" />
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 300,
+          'GRAD' 0,
+          'opsz' 48
+        }
+        </style>
 </svelte:head>
 
 {#if authState == "bad" || authState == "waiting"}
@@ -206,34 +226,45 @@
 
 <SvelteToast />
 
+<div class="unsuportedSizeNotice">
+    <h1>This aspect ratio is not yet supported</h1>
+    <h3>Please resize the application window</h3>
+</div>
+
 <div class="progress" style="width: {$percentage}vw;" />
 <div class="background" style="background-image: url({artwork})" />
 <div class="playerContainer">
     <div class="sideActions">
         <button class="shuffle" on:click={handleShuffle}>
-            {#if shuffle}
-                <Icon src={ArrowsRightLeft} solid size="50" fill="#fbfcfc" />
-            {:else}
-                <Icon src={ArrowsRightLeft} solid size="50" />
-            {/if}
+                <span class="material-symbols-rounded" class:turnedOn="{shuffle}">
+                    shuffle
+                </span>
         </button>
-        <button class="loop" on:click={handleLoop}>
-            {#if loop}
-                <Icon
-                    src={ArrowPathRoundedSquare}
-                    solid
-                    size="50"
-                    fill="#fbfcfc"
-                />
+        <button class="repeat" on:click={handlerepeat}>
+            {#if repeat == 0}
+            <span class="material-symbols-rounded">
+                repeat
+            </span>
+            {:else if repeat == 1}
+            <span class="material-symbols-rounded turnedOn">
+                repeat
+            </span>
             {:else}
-                <Icon src={ArrowPathRoundedSquare} solid size="50" />
+            <span class="material-symbols-rounded turnedOn">
+                repeat_one
+            </span>
             {/if}
         </button>
     </div>
     <div class="albumContainer">
         <img src={artwork} alt="" class="albumArt" />
         <div class="albumInfo">
-            <div>{albumTitle}</div>
+            <div>
+                <span class="material-symbols-rounded">
+                album
+            </span>
+            {albumTitle}
+        </div>
             <!-- <div>{albumDetails}</div> TODO: check if we have another way of accessing it? WebPlaybackTrack doesn't seem to have one -->
         </div>
     </div>
@@ -248,15 +279,27 @@
             class="side"
             on:click={() => {
                 player.previousTrack();
-            }}><Icon src={Backward} solid size="80" fill="#fbfcfc" /></button
-        >
+            }}>
+            <!-- <Icon src={Backward} solid size="80" fill="#fbfcfc" /> -->
+            <span class="material-symbols-rounded">
+                skip_previous
+            </span>
+            </button>
+        
+
         <button class="play" on:click={handlePlay}>
             {#if playing}
                 <!-- TODO: https://stackoverflow.com/questions/73278702/correct-way-of-changing-svg-image-in-svelte-->
-                <Icon src={PauseCircle} solid fill="#fbfcfc" size="100%" />
+                <!-- <Icon src={PauseCircle} solid fill="#fbfcfc" size="100%" /> -->
+                <span class="material-symbols-rounded">
+                    pause_circle
+                </span>
                 <!-- FIXME: why is this so fucked up when changing witdth of page-->
             {:else}
-                <Icon src={PlayCircle} solid fill="#fbfcfc" size="100%" />
+                <!-- <Icon src={PlayCircle} solid fill="#fbfcfc" size="100%" /> -->
+                <span class="material-symbols-rounded">
+                    play_circle
+                </span>
             {/if}
         </button>
 
@@ -264,8 +307,12 @@
             class="side"
             on:click={() => {
                 player.nextTrack();
-            }}><Icon src={Forward} solid size="80" fill="#fbfcfc" /></button
-        >
+            }}>
+            <!-- <Icon src={Forward} solid size="80" fill="#fbfcfc" /> -->
+            <span class="material-symbols-rounded">
+                skip_next
+            </span>
+            </button>
     </div>
 </div>
 
@@ -320,14 +367,20 @@
         justify-content: center;
         width: 5rem;
         height: 5rem;
-        backdrop-filter: blur(100px) brightness(1.7);
+        backdrop-filter: blur(100px) brightness(1.5);
         margin: 1rem;
+    }
+    .sideActions button span {
+        font-size: 3rem;
+    }
+    .sideActions button span.turnedOn {
+        color: #fbfcfc;
     }
     .controls {
         display: flex;
         align-items: center;
         justify-content: center;
-        bottom: 3rem;
+        bottom: 5vh;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
@@ -335,6 +388,24 @@
     .controls button {
         margin-left: 3rem;
         margin-right: 3rem;
+        color: #fcfcfc;
+        transition-property: all;
+        transition-duration: 120ms;
+    }
+    .controls button.play span {
+        font-size: 7rem;
+    }
+    .controls button.play {
+        border-radius: 4.5rem;
+    }
+    .controls button span {
+        font-size: 5rem;
+    }
+    .controls button.side {
+        border-radius: 2.5rem;
+    }
+    .controls button:active {
+        background-color: rgba(140, 142, 240, 0.1);
     }
     .albumContainer {
         top: 5rem;
@@ -356,8 +427,14 @@
         text-align: left;
         font-size: 1.5rem;
     }
+    .albumInfo span{
+        position: relative;
+        top: 0.25rem;
+        font-size: 1.5rem;
+        font-variation-settings: 'opsz' 20;
+    }
     .trackInfo {
-        margin: 3rem;
+        margin: 3vh;
         color: #fbfcfc;
     }
     .title {
@@ -367,12 +444,8 @@
         font-size: 2rem;
     }
     .progress {
-        background-image: linear-gradient(
-            360deg,
-            rgba(255, 255, 255, 0.486),
-            transparent
-        );
-        height: 3rem;
+        background-color: #fbfcfc;
+        height: 1vh;
         position: absolute;
         bottom: 0;
     }
@@ -381,5 +454,22 @@
     }
     .side {
         height: 10vh;
+    }
+
+    .unsuportedSizeNotice {
+        display: none;
+    }
+    @media (orientation: portrait) or (max-width: 63vh) {
+    /* TODO: this still misess my phone?*/
+    .unsuportedSizeNotice {
+        z-index: 100;
+        display: block;
+        position: absolute;
+        text-align: center;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+        color: #fff;
+    }
     }
 </style>
