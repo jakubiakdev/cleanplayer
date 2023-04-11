@@ -1,14 +1,4 @@
 <script>
-    import {
-        ArrowPathRoundedSquare,
-        ArrowsRightLeft,
-        Backward,
-        Forward,
-        Icon,
-        PauseCircle,
-        PlayCircle,
-    } from "svelte-hero-icons";
-
     import { tweened } from "svelte/motion";
     import { linear } from "svelte/easing";
 
@@ -48,6 +38,7 @@
     };
     let authState = "bad";
     let player = {};
+    let deviceId = "";
     function handlePlay() {
         console.log(player);
         if (playing) {
@@ -61,18 +52,24 @@
         }
     }
     function handleShuffle() {
-
+        if (shuffle == true) {
+            shuffle = false
+            SpotifyPlayer.setShuffle(false, deviceId)
+        } else {
+            shuffle = true
+            SpotifyPlayer.setShuffle(true, deviceId)
+        }
     }
     function handlerepeat() {
         if(repeat == 0) {
             repeat = 1
-            SpotifyPlayer.setRepeat('context')
+            SpotifyPlayer.setRepeat('context', deviceId)
         } else if (repeat == 1) {
             repeat = 2
-            SpotifyPlayer.setRepeat('track')
+            SpotifyPlayer.setRepeat('track', deviceId)
         } else if (repeat = 2) {
             repeat = 0
-            SpotifyPlayer.setRepeat('off')
+            SpotifyPlayer.setRepeat('off', deviceId)
         }
     }
     setInterval(updatePosition, 1000); // this is probably bad? I don't actually know but this could pose potential performance issues
@@ -87,6 +84,7 @@
         title = state.track_window.current_track.name;
         artist = state.track_window.current_track.artists[0].name;
         // artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
+        // TODO: this transition is quite frankly jarring, find a better way to smoothly transition in album art and background
         artwork =
             state.track_window.current_track.album.images[
                 findLargestImageIndex(
@@ -152,6 +150,7 @@
             console.log("Ready with Device ID", device_id);
             toast.push(`Ready with Device ID ${device_id}`);
             authState = "good";
+            deviceId = device_id;
         });
 
         player.addListener("not_ready", ({ device_id }) => {
