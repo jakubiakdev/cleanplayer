@@ -1,13 +1,13 @@
-import { redirectToAuthCodeFlow, setAccessToken} from './spotifyUtils/auth.js'
+import { redirectToAuthCodeFlow, newAccessToken} from './spotifyUtils/auth.js'
 
-import { setRepeat, setShuffle } from './spotifyUtils/player.js'
+import { setRepeat, setShuffle } from './spotifyUtils/playerApi.js'
 
 export const SpotifyAuth = {
   redirectToAuthCodeFlow: redirectToAuthCodeFlow,
-  setAccessToken: setAccessToken,
+  newAccessToken: newAccessToken,
 }
 
-export const SpotifyPlayer = {
+export const SpotifyPlayerApi = {
   setRepeat: setRepeat,
   setShuffle: setShuffle
 }

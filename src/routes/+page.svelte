@@ -1,23 +1,31 @@
 <script>
     import { tweened } from "svelte/motion";
     import { linear } from "svelte/easing";
-
+    
+    import OptionsWindow from "../components/OptionsWindow.svelte";
     import SpotifyLogin from "../components/SpotifyLogin.svelte";
-    import { SpotifyAuth, SpotifyPlayer } from "../spotifyUtils";
+    import { SpotifyAuth, SpotifyPlayerApi } from "../spotifyUtils";
+
+    import { settings } from '../stores'
+    import { findLargestImageIndex } from "../commonUtils";
+    // settings.subscribe() // TODO: change css based on this!
+
+    import {player, createPlayer} from "../spotifyUtils/player.js"
 
     import { SvelteToast } from "@zerodevx/svelte-toast";
     import { toast } from "@zerodevx/svelte-toast";
 
-    import { UAParser } from "ua-parser-js";
+
+    let showOptions = false;
 
     let title = "Surfacing";
     let artist = "Aran";
-    // let artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
-    let artwork =
-        "https://lastfm.freetls.fastly.net/i/u/770x0/380d533b9e6dc384c78d5e554646ef5f.jpg";
+    let artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
+    // let artwork =
+        // "https://lastfm.freetls.fastly.net/i/u/770x0/380d533b9e6dc384c78d5e554646ef5f.jpg";
     let albumTitle = "Aphotic Seeker";
     let albumDetails = "Aran · 2020";
-    let playing = true;
+    let playing = false;
     // let percentage = 0;
     const percentage = tweened(0, {
         duration: 1000, // 1000 because of update interval, and to make the animation smooth even when changing playback device
@@ -37,10 +45,8 @@
         skipping_prev: false,
     };
     let authState = "bad";
-    let player = {};
     let deviceId = "";
     function handlePlay() {
-        console.log(player);
         if (playing) {
             player.pause().then(() => {
                 playing = false;
@@ -51,27 +57,28 @@
             });
         }
     }
-    function handleShuffle() {
+    async function handleShuffle() {
         if (shuffle == true) {
+            await SpotifyPlayerApi.setShuffle(false, deviceId)
             shuffle = false
-            SpotifyPlayer.setShuffle(false, deviceId)
         } else {
+            await SpotifyPlayerApi.setShuffle(true, deviceId)
             shuffle = true
-            SpotifyPlayer.setShuffle(true, deviceId)
         }
     }
-    function handlerepeat() {
+    async function handlerepeat() {
         if(repeat == 0) {
+            await SpotifyPlayerApi.setRepeat('context', deviceId)
             repeat = 1
-            SpotifyPlayer.setRepeat('context', deviceId)
         } else if (repeat == 1) {
+            await SpotifyPlayerApi.setRepeat('track', deviceId)
             repeat = 2
-            SpotifyPlayer.setRepeat('track', deviceId)
         } else if (repeat = 2) {
+            await SpotifyPlayerApi.setRepeat('off', deviceId)
             repeat = 0
-            SpotifyPlayer.setRepeat('off', deviceId)
         }
     }
+
     setInterval(updatePosition, 1000); // this is probably bad? I don't actually know but this could pose potential performance issues
     function updatePosition() {
         if (playing) {
@@ -102,12 +109,6 @@
         console.log(state);
     }
 
-    function findLargestImageIndex(arr) {
-        return arr
-            .map((o) => o.height)
-            .indexOf(Math.max(...arr.map((o) => o.height)));
-    }
-
     // if (authCode) {
     //     setAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode) //FIXME: hardcoded client id
     //         .then((o) => {
@@ -119,12 +120,8 @@
     //         });
     // }
 
-    function getUserAgent() {
-        const uap = UAParser(window.navigator.userAgent);
-        console.log(uap);
-        // const result = uap.getResult()
-        return `${uap.browser.name} · ${uap.os.name}`;
-    }
+
+
     window.onSpotifyWebPlaybackSDKReady = async function() {
         console.log("sdk ready");
         // auth to spotify
@@ -132,19 +129,12 @@
             "code"
         );
         if (authCode) {
-            await SpotifyAuth.setAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode);
-            window.history.replaceState({}, document.title);
+            await SpotifyAuth.newAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode);
+            window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
             authState = "waiting";
         }
-        const token = localStorage.getItem("access-token"); // TODO: token callback should check if token is still valid and refresh it
-        player = new Spotify.Player({
-            name: `CleanPlayer (${getUserAgent()}) `,
-            getOAuthToken: (cb) => {
-                cb(token);
-            },
-            volume: 1,
-        });
-        console.log(player);
+        
+        createPlayer();
 
         player.addListener("ready", ({ device_id }) => {
             console.log("Ready with Device ID", device_id);
@@ -187,6 +177,8 @@
         player.addListener("player_state_changed", (state) => {
             updatePlayerState(state);
         });
+
+        console.log(player);
     };
 </script>
 
@@ -202,6 +194,7 @@
             padding: 0;
             margin: 0;
             font-family: "Nanum Gothic", sans-serif;
+            color: #fbfcfc;
             /* font-family: Arial, Helvetica, sans-serif; */
         }
     </style>
@@ -221,6 +214,10 @@
 
 {#if authState == "bad" || authState == "waiting"}
     <SpotifyLogin {authState} />
+{/if}
+
+{#if showOptions} 
+    <OptionsWindow/>
 {/if}
 
 <SvelteToast />
@@ -254,6 +251,11 @@
             </span>
             {/if}
         </button>
+        <button class="settings" on:click={() => {showOptions = !showOptions}}>
+            <span class="material-symbols-rounded">
+                menu
+            </span>
+    </button>
     </div>
     <div class="albumContainer">
         <img src={artwork} alt="" class="albumArt" />
@@ -293,7 +295,6 @@
                 <span class="material-symbols-rounded">
                     pause_circle
                 </span>
-                <!-- FIXME: why is this so fucked up when changing witdth of page-->
             {:else}
                 <!-- <Icon src={PlayCircle} solid fill="#fbfcfc" size="100%" /> -->
                 <span class="material-symbols-rounded">
@@ -407,16 +408,16 @@
         background-color: rgba(140, 142, 240, 0.1);
     }
     .albumContainer {
-        top: 5rem;
         width: 100%;
         height: 60vh;
         display: flex;
         align-items: center;
+        justify-content: center; 
     }
     .albumArt {
         height: 60vh;
-        left: calc(50% - 30vh);
-        position: fixed;
+        /* left: calc(50% - 30vh);
+        position: fixed; */ /* chuj go wie */ 
     }
     .albumInfo {
         margin-left: 32vh;
@@ -447,6 +448,7 @@
         height: 1vh;
         position: absolute;
         bottom: 0;
+        border-radius: 0.3vh;
     }
     .play {
         height: 13vh;
