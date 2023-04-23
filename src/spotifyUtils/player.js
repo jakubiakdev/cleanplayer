@@ -1,16 +1,19 @@
 import { UAParser } from "ua-parser-js";
 //import svelte store
-import { readable } from "svelte/store";
+import { readable, writable } from "svelte/store";
 import { getQueue } from "./playerApi";
-
+import { settings } from "../stores";
 import { getAccessToken } from "./auth";
 
-let updateState
+import { get } from 'svelte/store'
+
+let lastState = { track_window: { next_tracks: [] } }
 let updateQueue
+let lastQueue
 
 function getUserAgent() {
     const uap = UAParser(window.navigator.userAgent);
-    console.log(uap);
+    // console.log(uap);
     // const result = uap.getResult()
     return `${uap.browser.name} · ${uap.os.name}`;
 }
@@ -19,20 +22,35 @@ export async function createPlayer() {
     player = new Spotify.Player({
         name: `CleanPlayer (${getUserAgent()}) `,
         getOAuthToken: (cb) => {
-            cb(getAccessToken()); // TODO: token callback should check if token is still valid and refresh it
+            cb(getAccessToken()); 
         },
-        volume: 1,
+        volume: get(settings).volume,
     });
-    player.addListener("player_state_changed", (async () => {
-        let q = await getQueue(); // TODO: this stupid ass mf reloads your entire queue when pausing the track lmaoOOOOOO
-        console.log('queue updated?', q)
-        updateQueue(q);
-    }));
+    player.addListener("player_state_changed", (currentState) => {
+        if (JSON.stringify(currentState.track_window.next_tracks) != JSON.stringify(lastState.track_window.next_tracks)) {
+            lastState = currentState
+            setTimeout((async () => {
+                let q = await getQueue();
+                lastQueue = q
+                if(updateQueue) {
+                    console.log("Updated queue: ", q)
+                    updateQueue(q);
+                }
+            }), 1000);
+        } else {
+            console.log('Chose not to update queue')
+        }
+
+    });
+    player.addListener("ready", ({ device_id }) => {
+        deviceId = device_id
+    })
 }
 
 export let queue = readable([], function start(set) {
     updateQueue = set
-    set(queue)
+    set(lastQueue)
 })
 
 export let player
+export let deviceId

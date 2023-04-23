@@ -5,7 +5,7 @@ export async function getAccessToken(clientId) {
     let tokenGenerationTime = localStorage.getItem('tokenGenerationTime')
     let currentTime = Date.now() 
     if ((currentTime - tokenGenerationTime) > expiryTime * 1000) {
-        body = new URLSearchParams()
+        let body = new URLSearchParams()
         body.append("grant_type", "refresh_token")
         body.append("refresh_token", localStorage.getItem('refresh-token'))
         body.append("client_id", "0833c365ed2e41cdaf8119cfe3f34ff9") //TODO: hardcoded client id
@@ -13,10 +13,10 @@ export async function getAccessToken(clientId) {
         await fetch(`https://accounts.spotify.com/api/token`, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: params
+            body: body
         }).then(data => {
             localStorage.setItem('expiryTime', data.expires_in)
-            localStorage.tokenGenerationTime("tokenGenerationTime", Date.now())
+            localStorage.setItem("tokenGenerationTime", Date.now())
             localStorage.setItem('accessToken', data.access_token);
             localStorage.setItem('refreshToken', data.refresh_token);
             toast.push("Regenerated access token")
@@ -79,6 +79,18 @@ export async function newAccessToken(clientId, code) {
 
 }
 
+export function logOut() {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('expiryTime')
+    localStorage.removeItem('tokenGenerationTime')
+    localStorage.removeItem('verifier')
+    toast.push('Logged out!')
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
+
 function generateCodeVerifier(length) {
     let text = ""
     let possible =
@@ -98,3 +110,4 @@ async function generateCodeChallenge(codeVerifier) {
         .replace(/\//g, "_")
         .replace(/=+$/, "")
 }
+

@@ -34,7 +34,7 @@
         height: 100%;
         border-radius: 0 2ch 2ch 0;
         padding: 0  1rem;
-        overflow: scroll;
+        overflow: overlay;
     }
     hr {
         border: #707070 1px solid;
@@ -55,10 +55,12 @@
         color: #fbfcfc;
         padding: 1rem;
         width: 80%;
+        box-shadow: 0 0 10px 5px rgba(124, 124, 124, 0.26);
     }
     button:hover {
         cursor: pointer;
     }
+
 </style>
 
 <script>

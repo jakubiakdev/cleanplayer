@@ -1,3 +1,5 @@
+import { toast } from "@zerodevx/svelte-toast"
+
 export async function setRepeat(option, device_id) {
     await fetch(`https://api.spotify.com/v1/me/player/repeat?state=${option}&device_id=${device_id}`, {
         method: "PUT",
@@ -28,4 +30,18 @@ export async function getQueue() {
   }).then(data => {
     return data.queue // thank you chatgpt after like 30 minutes it works
     })
+}
+
+export async function handoff(device_id) {
+  await fetch("https://api.spotify.com/v1/me/player", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    body: `{ "device_ids": ["${device_id}"], "play": false }`
+  }).then((res) => {
+    if(res.status != 200) {
+      toast.push("Couldn't handoff device - Spotify API Failed. Please do it from another client")
+    } else {
+      return true
+    }
+  })
 }

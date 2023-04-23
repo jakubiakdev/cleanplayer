@@ -1,52 +1,74 @@
 <script>
     import { tweened } from "svelte/motion";
     import { linear } from "svelte/easing";
-    
+
     import OptionsWindow from "../components/OptionsWindow.svelte";
     import SpotifyLogin from "../components/SpotifyLogin.svelte";
     import { SpotifyAuth, SpotifyPlayerApi } from "../spotifyUtils";
 
-    import { settings } from '../stores'
+    import { settings, playerActivated } from "../stores";
     import { findLargestImageIndex } from "../commonUtils";
     // settings.subscribe() // TODO: change css based on this!
 
-    import {player, createPlayer} from "../spotifyUtils/player.js"
+    import { player, createPlayer, deviceId } from "../spotifyUtils/player.js";
 
     import { SvelteToast } from "@zerodevx/svelte-toast";
     import { toast } from "@zerodevx/svelte-toast";
-
+    import EntranceWindow from "../components/EntranceWindow.svelte";
+    import { validate_each_argument } from "svelte/internal";
 
     let showOptions = false;
+    let authState;
+    if (localStorage.getItem("accessToken")) {
+        authState = "waiting";
+    } else {
+        authState = "bad";
+    }
 
-    let title = "Surfacing";
-    let artist = "Aran";
-    let artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
+    let title = ""; //= "Surfacing";
+    let artist = ""; //= "Aran";
+    let artwork = ""; //= "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
     // let artwork =
-        // "https://lastfm.freetls.fastly.net/i/u/770x0/380d533b9e6dc384c78d5e554646ef5f.jpg";
-    let albumTitle = "Aphotic Seeker";
-    let albumDetails = "Aran · 2020";
+    // "https://lastfm.freetls.fastly.net/i/u/770x0/380d533b9e6dc384c78d5e554646ef5f.jpg";
+    let albumTitle = ""; //= "Aphotic Seeker";
+    // let albumDetails = ''//= "Aran · 2020";
+    let context = "";
     let playing = false;
     // let percentage = 0;
     const percentage = tweened(0, {
         duration: 1000, // 1000 because of update interval, and to make the animation smooth even when changing playback device
         easing: linear,
     });
-    let duration = 214007;
-    let position = 35926;
+    let duration = 100000; // = 214007;
+    let position = 0; //= 35926;
     let shuffle = false;
     let repeat = false;
-    let disallows = {
-        pausing: false,
-        peeking_next: false,
-        peeking_prev: false,
-        resuming: false,
-        seeking: false,
-        skipping_next: false,
-        skipping_prev: false,
-    };
-    let authState = "bad";
-    let deviceId = "";
+    // let disallows = {
+    //     pausing: false,
+    //     peeking_next: false,
+    //     peeking_prev: false,
+    //     resuming: false,
+    //     seeking: false,
+    //     skipping_next: false,
+    //     skipping_prev: false,
+    // };
+    let albumArtRadius;
+    $: albumArtRadius;
+    settings.subscribe((value) => {
+        if (value.roundedCorners) {
+            albumArtRadius = "2ch";
+        } else {
+            albumArtRadius = 0;
+        }
+    });
+
     function handlePlay() {
+        // if(firstLaunch) {
+        //     firstLaunch = false
+        //     setTimeout(() => {
+        //         player.getCurrentState().then(state => {updatePlayerState(state)})
+        //     }, 1500);
+        // }
         if (playing) {
             player.pause().then(() => {
                 playing = false;
@@ -59,23 +81,23 @@
     }
     async function handleShuffle() {
         if (shuffle == true) {
-            await SpotifyPlayerApi.setShuffle(false, deviceId)
-            shuffle = false
+            await SpotifyPlayerApi.setShuffle(false, deviceId);
+            shuffle = false;
         } else {
-            await SpotifyPlayerApi.setShuffle(true, deviceId)
-            shuffle = true
+            await SpotifyPlayerApi.setShuffle(true, deviceId);
+            shuffle = true;
         }
     }
     async function handlerepeat() {
-        if(repeat == 0) {
-            await SpotifyPlayerApi.setRepeat('context', deviceId)
-            repeat = 1
+        if (repeat == 0) {
+            await SpotifyPlayerApi.setRepeat("context", deviceId);
+            repeat = 1;
         } else if (repeat == 1) {
-            await SpotifyPlayerApi.setRepeat('track', deviceId)
-            repeat = 2
-        } else if (repeat = 2) {
-            await SpotifyPlayerApi.setRepeat('off', deviceId)
-            repeat = 0
+            await SpotifyPlayerApi.setRepeat("track", deviceId);
+            repeat = 2;
+        } else if ((repeat = 2)) {
+            await SpotifyPlayerApi.setRepeat("off", deviceId);
+            repeat = 0;
         }
     }
 
@@ -89,7 +111,7 @@
 
     function updatePlayerState(state) {
         title = state.track_window.current_track.name;
-        artist = state.track_window.current_track.artists[0].name;
+        artist = state.track_window.current_track.artists.map( a => a.name).join(", ");
         // artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
         // TODO: this transition is quite frankly jarring, find a better way to smoothly transition in album art and background
         artwork =
@@ -99,8 +121,29 @@
                 )
             ].url;
         albumTitle = state.track_window.current_track.album.name;
-        // albumDetails = "Aran · 2020";
-        playing = !state.paused;
+        context = "";
+        if (state.context.uri.startsWith("spotify:playlist")) {
+            context += `<span class="material-symbols-rounded">
+                library_music
+                </span> ${state.context.metadata.name}`;
+        }
+        if (state.context.uri.startsWith("spotify:user")) {
+            context += `<span class="material-symbols-rounded">
+                favorite
+                </span> Liked Songs`;
+        }
+        // if(state.context.uri.startsWith("spotify:artist")) { // doesn't like it when you play something from inside artist page
+        //     context += `<span class="material-symbols-rounded">
+        //         person
+        //         </span> ${state.context.metadata.name}`;
+        // }
+
+        // playing = !state.paused;
+        if (state.paused) {
+            playing = false;
+        } else {
+            playing = true;
+        }
         // percentage = 45;
         duration = state.duration;
         position = state.position;
@@ -120,27 +163,31 @@
     //         });
     // }
 
-
-
-    window.onSpotifyWebPlaybackSDKReady = async function() {
+    window.onSpotifyWebPlaybackSDKReady = async function () {
         console.log("sdk ready");
         // auth to spotify
         const authCode = new URLSearchParams(window.location.search).get(
             "code"
         );
         if (authCode) {
-            await SpotifyAuth.newAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode);
-            window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+            await SpotifyAuth.newAccessToken(
+                "0833c365ed2e41cdaf8119cfe3f34ff9",
+                authCode
+            );
+            window.history.replaceState(
+                {},
+                document.title,
+                window.location.origin + window.location.pathname
+            );
             authState = "waiting";
         }
-        
+
         createPlayer();
 
         player.addListener("ready", ({ device_id }) => {
             console.log("Ready with Device ID", device_id);
             toast.push(`Ready with Device ID ${device_id}`);
             authState = "good";
-            deviceId = device_id;
         });
 
         player.addListener("not_ready", ({ device_id }) => {
@@ -185,39 +232,39 @@
 <svelte:head>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap"
-        rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300&display=swap" rel="stylesheet">
     <style>
         body {
             padding: 0;
             margin: 0;
-            font-family: "Nanum Gothic", sans-serif;
+            font-family: "Libre Franklin", sans-serif;
             color: #fbfcfc;
             /* font-family: Arial, Helvetica, sans-serif; */
         }
     </style>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <!-- Google icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300,0,0" />
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300,0,0"
+    />
     <style>
         .material-symbols-outlined {
-          font-variation-settings:
-          'FILL' 0,
-          'wght' 300,
-          'GRAD' 0,
-          'opsz' 48
+            font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 48;
         }
-        </style>
+    </style>
 </svelte:head>
 
 {#if authState == "bad" || authState == "waiting"}
     <SpotifyLogin {authState} />
 {/if}
 
-{#if showOptions} 
-    <OptionsWindow/>
+{#if showOptions}
+    <OptionsWindow />
+{/if}
+
+{#if !$playerActivated && authState == "good"}
+    <EntranceWindow />
 {/if}
 
 <SvelteToast />
@@ -232,42 +279,47 @@
 <div class="playerContainer">
     <div class="sideActions">
         <button class="shuffle" on:click={handleShuffle}>
-                <span class="material-symbols-rounded" class:turnedOn="{shuffle}">
-                    shuffle
-                </span>
+            <span class="material-symbols-rounded" class:turnedOn={shuffle}>
+                shuffle
+            </span>
         </button>
         <button class="repeat" on:click={handlerepeat}>
             {#if repeat == 0}
-            <span class="material-symbols-rounded">
-                repeat
-            </span>
+                <span class="material-symbols-rounded"> repeat </span>
             {:else if repeat == 1}
-            <span class="material-symbols-rounded turnedOn">
-                repeat
-            </span>
+                <span class="material-symbols-rounded turnedOn"> repeat </span>
             {:else}
-            <span class="material-symbols-rounded turnedOn">
-                repeat_one
-            </span>
+                <span class="material-symbols-rounded turnedOn">
+                    repeat_one
+                </span>
             {/if}
         </button>
-        <button class="settings" on:click={() => {showOptions = !showOptions}}>
-            <span class="material-symbols-rounded">
-                menu
-            </span>
-    </button>
+        <button
+            class="settings"
+            on:click={() => {
+                showOptions = !showOptions;
+            }}
+        >
+            <span class="material-symbols-rounded" class:turnedOn={showOptions}> menu </span>
+        </button>
     </div>
     <div class="albumContainer">
-        <img src={artwork} alt="" class="albumArt" />
+        <img
+            src={artwork}
+            alt=""
+            class="albumArt"
+            style="border-radius: {albumArtRadius}"
+        />
         <div class="albumInfo">
-            <div>
-                <span class="material-symbols-rounded">
-                album
-            </span>
-            {albumTitle}
+            <div class="infoText">
+                <span class="material-symbols-rounded"> album </span>
+                {albumTitle}
+            </div>
+            <div class="infoText">
+                {@html context}
+            </div>
         </div>
-            <!-- <div>{albumDetails}</div> TODO: check if we have another way of accessing it? WebPlaybackTrack doesn't seem to have one -->
-        </div>
+        <!-- <div>{albumDetails}</div> TODO: check if we have another way of accessing it? WebPlaybackTrack doesn't seem to have one -->
     </div>
     <div class="trackInfo">
         <div class="title">{title}</div>
@@ -280,26 +332,20 @@
             class="side"
             on:click={() => {
                 player.previousTrack();
-            }}>
+            }}
+        >
             <!-- <Icon src={Backward} solid size="80" fill="#fbfcfc" /> -->
-            <span class="material-symbols-rounded">
-                skip_previous
-            </span>
-            </button>
-        
+            <span class="material-symbols-rounded"> skip_previous </span>
+        </button>
 
         <button class="play" on:click={handlePlay}>
             {#if playing}
                 <!-- TODO: https://stackoverflow.com/questions/73278702/correct-way-of-changing-svg-image-in-svelte-->
                 <!-- <Icon src={PauseCircle} solid fill="#fbfcfc" size="100%" /> -->
-                <span class="material-symbols-rounded">
-                    pause_circle
-                </span>
+                <span class="material-symbols-rounded"> pause_circle </span>
             {:else}
                 <!-- <Icon src={PlayCircle} solid fill="#fbfcfc" size="100%" /> -->
-                <span class="material-symbols-rounded">
-                    play_circle
-                </span>
+                <span class="material-symbols-rounded"> play_circle </span>
             {/if}
         </button>
 
@@ -307,19 +353,15 @@
             class="side"
             on:click={() => {
                 player.nextTrack();
-            }}>
+            }}
+        >
             <!-- <Icon src={Forward} solid size="80" fill="#fbfcfc" /> -->
-            <span class="material-symbols-rounded">
-                skip_next
-            </span>
-            </button>
+            <span class="material-symbols-rounded"> skip_next </span>
+        </button>
     </div>
 </div>
 
 <style>
-    :root {
-        --radius: 3ch;
-    }
     .background {
         background-color: #9fc9dd;
         background-repeat: no-repeat;
@@ -350,7 +392,7 @@
     }
     img {
         height: 100%;
-        border-radius: var(--radius);
+        border-radius: 3ch;
     }
     /* .playerContainer {
         text-align: center;
@@ -412,12 +454,12 @@
         height: 60vh;
         display: flex;
         align-items: center;
-        justify-content: center; 
+        justify-content: center;
     }
     .albumArt {
         height: 60vh;
         /* left: calc(50% - 30vh);
-        position: fixed; */ /* chuj go wie */ 
+        position: fixed; */ /* chuj go wie */
     }
     .albumInfo {
         margin-left: 32vh;
@@ -427,11 +469,17 @@
         text-align: left;
         font-size: 1.5rem;
     }
-    .albumInfo span{
-        position: relative;
-        top: 0.25rem;
-        font-size: 1.5rem;
-        font-variation-settings: 'opsz' 20;
+    :global(.infoText span) {
+        font-size: 2rem;
+        font-variation-settings: "opsz" 20;
+    }
+    .albumInfo .infoText {
+        display: flex;
+        align-items: center;
+        justify-content: left;
+    }
+    .albumInfo .infoText:nth-child(2) {
+        margin-top: 0.25rem;
     }
     .trackInfo {
         margin: 3vh;
@@ -448,7 +496,7 @@
         height: 1vh;
         position: absolute;
         bottom: 0;
-        border-radius: 0.3vh;
+        border-radius: 0 0.3vh 0.3vh 0;
     }
     .play {
         height: 13vh;
@@ -461,16 +509,16 @@
         display: none;
     }
     @media (orientation: portrait) or (max-width: 63vh) {
-    /* TODO: this still misess my phone?*/
-    .unsuportedSizeNotice {
-        z-index: 100;
-        display: block;
-        position: absolute;
-        text-align: center;
-        width: 100vw;
-        height: 100vh;
-        background-color: #000;
-        color: #fff;
-    }
+        /* TODO: this still misess my phone?*/
+        .unsuportedSizeNotice {
+            z-index: 100;
+            display: block;
+            position: absolute;
+            text-align: center;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            color: #fff;
+        }
     }
 </style>

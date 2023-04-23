@@ -14,6 +14,12 @@
         background-color: #3a3a3a;
         border-radius: 2ch;
     }
+    .info {
+        text-align: right;
+    }
+    .artist {
+        filter: brightness(0.5); /* TODO: this is not a good way of doing this */
+    }
     img {
         height: 100%;
     }
@@ -21,7 +27,13 @@
 
 <div class="card">
     <img src="{song.album.images[findLargestImageIndex(song.album.images)].url}" alt=""> <!-- this should not be hq-->
-    <div class="name">
-        {song.name} · {song.artists[0].name}
+    <div class="info">
+        <div class="name">
+            {song.name}
+        </div>
+        <div class="artist">
+            {song.artists[0].name}
+        </div>
     </div>
+
 </div>
