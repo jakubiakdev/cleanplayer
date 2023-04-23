@@ -1,9 +1,12 @@
 import { toast } from "@zerodevx/svelte-toast";
 
 export async function getAccessToken(clientId) {
+    if(localStorage.getItem('accessToken') == undefined || localStorage.getItem('refreshToken') == undefined) {
+        return false
+    }
     let expiryTime = localStorage.getItem('expiryTime')
     let tokenGenerationTime = localStorage.getItem('tokenGenerationTime')
-    let currentTime = Date.now() 
+    let currentTime = Date.now()
     if ((currentTime - tokenGenerationTime) > expiryTime * 1000) {
         let body = new URLSearchParams()
         body.append("grant_type", "refresh_token")
@@ -14,7 +17,12 @@ export async function getAccessToken(clientId) {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: body
-        }).then(data => {
+        }).then(response => {
+            if (!response.ok) {
+                toast.push('Error refreshing token');
+            }
+            return response.json();
+        }).then (data => {
             localStorage.setItem('expiryTime', data.expires_in)
             localStorage.setItem("tokenGenerationTime", Date.now())
             localStorage.setItem('accessToken', data.access_token);

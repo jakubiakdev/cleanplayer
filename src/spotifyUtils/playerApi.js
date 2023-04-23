@@ -38,10 +38,10 @@ export async function handoff(device_id) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     body: `{ "device_ids": ["${device_id}"], "play": false }`
   }).then((res) => {
-    if(res.status != 200) {
-      toast.push("Couldn't handoff device - Spotify API Failed. Please do it from another client")
-    } else {
+    if(res.status == 200 || res.status == 202) {
       return true
+    } else {
+      toast.push("Device handoff might not have succeded. You might have do it from another client using Spotify connect and choosing this device")
     }
   })
 }

@@ -22,7 +22,7 @@ export async function createPlayer() {
     player = new Spotify.Player({
         name: `CleanPlayer (${getUserAgent()}) `,
         getOAuthToken: (cb) => {
-            cb(getAccessToken()); 
+            cb(getAccessToken());
         },
         volume: get(settings).volume,
     });

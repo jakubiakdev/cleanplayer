@@ -16,6 +16,7 @@
     import { toast } from "@zerodevx/svelte-toast";
     import EntranceWindow from "../components/EntranceWindow.svelte";
     import { validate_each_argument } from "svelte/internal";
+    import { getAccessToken } from "../spotifyUtils/auth";
 
     let showOptions = false;
     let authState;
@@ -43,15 +44,15 @@
     let position = 0; //= 35926;
     let shuffle = false;
     let repeat = false;
-    // let disallows = {
-    //     pausing: false,
-    //     peeking_next: false,
-    //     peeking_prev: false,
-    //     resuming: false,
-    //     seeking: false,
-    //     skipping_next: false,
-    //     skipping_prev: false,
-    // };
+    let disallows = {
+        pausing: false,
+        peeking_next: false,
+        peeking_prev: false,
+        resuming: false,
+        seeking: false,
+        skipping_next: false,
+        skipping_prev: false,
+    };
     let albumArtRadius;
     $: albumArtRadius;
     settings.subscribe((value) => {
@@ -149,6 +150,7 @@
         position = state.position;
         shuffle = state.shuffle;
         repeat = state.repeat_mode;
+        disallows = state.disallows
         console.log(state);
     }
 
@@ -181,8 +183,14 @@
             );
             authState = "waiting";
         }
-
-        createPlayer();
+        let res = await getAccessToken()
+        if(res == false || res == undefined) {
+            console.log(res, "is false")
+            authState = "bad"
+        } else {
+            console.log(res, "is true")
+            createPlayer();
+        
 
         player.addListener("ready", ({ device_id }) => {
             console.log("Ready with Device ID", device_id);
@@ -226,6 +234,7 @@
         });
 
         console.log(player);
+    }
     };
 </script>
 
@@ -278,12 +287,12 @@
 <div class="background" style="background-image: url({artwork})" />
 <div class="playerContainer">
     <div class="sideActions">
-        <button class="shuffle" on:click={handleShuffle}>
+        <button class="shuffle" on:click={handleShuffle} disabled={disallows.toggling_shuffle}>
             <span class="material-symbols-rounded" class:turnedOn={shuffle}>
                 shuffle
             </span>
         </button>
-        <button class="repeat" on:click={handlerepeat}>
+        <button class="repeat" on:click={handlerepeat} disabled={disallows.toggling_repeat_context || disallows.toggling_repeat_track}>
             {#if repeat == 0}
                 <span class="material-symbols-rounded"> repeat </span>
             {:else if repeat == 1}
@@ -329,7 +338,7 @@
 
     <div class="controls">
         <button
-            class="side"
+            class="side" disabled={disallows.skipping_prev}
             on:click={() => {
                 player.previousTrack();
             }}
@@ -350,7 +359,7 @@
         </button>
 
         <button
-            class="side"
+            class="side" disabled={disallows.skipping_next}
             on:click={() => {
                 player.nextTrack();
             }}
@@ -484,12 +493,13 @@
     .trackInfo {
         margin: 3vh;
         color: #fbfcfc;
+        font-size: 1.65vh;
     }
     .title {
-        font-size: 3rem;
+        font-size: 300%;
     }
     .artist {
-        font-size: 2rem;
+        font-size: 200%;
     }
     .progress {
         background-color: #fbfcfc;
@@ -504,13 +514,21 @@
     .side {
         height: 10vh;
     }
-
+    button[disabled] {
+        filter: contrast(0.5) brightness(0.5);
+        cursor: not-allowed;
+    }
     .unsuportedSizeNotice {
         display: none;
     }
-    @media (orientation: portrait) or (max-width: 63vh) {
+    @media (max-width: 78rem) {
+        .sideActions {
+            display: flex;
+            flex-direction: column;
+            left: 0;
+        }
         /* TODO: this still misess my phone?*/
-        .unsuportedSizeNotice {
+        /* .unsuportedSizeNotice {
             z-index: 100;
             display: block;
             position: absolute;
@@ -519,6 +537,6 @@
             height: 100vh;
             background-color: #000;
             color: #fff;
-        }
+        } */
     }
 </style>
