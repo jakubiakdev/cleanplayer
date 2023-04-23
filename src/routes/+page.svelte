@@ -123,7 +123,7 @@
                 )
             ].url;
         albumTitle = state.track_window.current_track.album.name;
-        albumLink = `https://open.spotify.com/artist/${state.track_window.current_track.album.uri.slice(0,14)}`; 
+        albumLink = `https://open.spotify.com/album/${state.track_window.current_track.album.uri.slice(14)}`; 
         context = "";
         if (state.context.uri.startsWith("spotify:playlist")) {
             context += `<span class="material-symbols-rounded">
