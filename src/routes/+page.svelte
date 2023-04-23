@@ -32,6 +32,7 @@
     // let artwork =
     // "https://lastfm.freetls.fastly.net/i/u/770x0/380d533b9e6dc384c78d5e554646ef5f.jpg";
     let albumTitle = ""; //= "Aphotic Seeker";
+    let albumLink = "#"
     // let albumDetails = ''//= "Aran · 2020";
     let context = "";
     let playing = false;
@@ -122,6 +123,7 @@
                 )
             ].url;
         albumTitle = state.track_window.current_track.album.name;
+        albumLink = `https://https://open.spotify.com/artist/${state.track_window.current_track.album.uri.slice(0,14)}`; 
         context = "";
         if (state.context.uri.startsWith("spotify:playlist")) {
             context += `<span class="material-symbols-rounded">
@@ -320,7 +322,7 @@
         <div class="albumInfo">
             <div class="infoText">
                 <span class="material-symbols-rounded"> album </span>
-                {albumTitle}
+                <a href="{albumLink}"> {albumTitle}</a>
             </div>
             <div class="infoText">
                 {@html context}
@@ -485,6 +487,11 @@
         align-items: center;
         justify-content: left;
     }
+    .infoText a {
+        text-decoration: none;
+        color: #abafb2;
+    }
+
     .albumInfo .infoText:nth-child(2) {
         margin-top: 0.25rem;
     }
