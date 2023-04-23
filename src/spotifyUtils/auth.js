@@ -43,7 +43,7 @@ export async function redirectToAuthCodeFlow(clientId) {
     const params = new URLSearchParams()
     params.append("client_id", clientId)
     params.append("response_type", "code")
-    params.append("redirect_uri", "http://localhost:5173/")
+    params.append("redirect_uri", window.location.href.split(/[?#]/)[0])
     params.append("scope", "user-read-playback-state user-modify-playback-state user-read-currently-playing app-remote-control streaming playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read user-read-email user-read-private ") //fixme: too much permissions
     params.append("code_challenge_method", "S256")
     params.append("code_challenge", challenge)
@@ -58,7 +58,7 @@ export async function newAccessToken(clientId, code) {
     params.append("client_id", clientId)
     params.append("grant_type", "authorization_code")
     params.append("code", code)
-    params.append("redirect_uri", "http://localhost:5173/")
+    params.append("redirect_uri", window.location.href.split(/[?#]/)[0])
     params.append("code_verifier", verifier)
 
     const result = await fetch("https://accounts.spotify.com/api/token", {

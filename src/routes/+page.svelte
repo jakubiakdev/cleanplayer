@@ -185,10 +185,8 @@
         }
         let res = await getAccessToken()
         if(res == false || res == undefined) {
-            console.log(res, "is false")
             authState = "bad"
         } else {
-            console.log(res, "is true")
             createPlayer();
         
 

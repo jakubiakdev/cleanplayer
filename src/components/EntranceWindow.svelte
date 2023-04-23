@@ -4,6 +4,7 @@
     import { player, deviceId } from "../spotifyUtils/player";
     import {handoff } from "../spotifyUtils/playerApi"
     import { playerActivated } from "../stores";
+    import { UAParser } from "ua-parser-js";
 </script>
 
 
@@ -12,6 +13,9 @@
     <button class="mainAction" on:click={ (async () => {
         player.activateElement()
         await handoff(deviceId)
+        if(UAParser(window.navigator.userAgent).device.type == "mobile") {
+            document.body.requestFullscreen({ navigationUI: "hide" })
+        }
         playerActivated.set(true)
     })
         }>Enter the app</button>
