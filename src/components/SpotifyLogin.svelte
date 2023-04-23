@@ -13,6 +13,7 @@
     <div class="container">
         {#if authState == 'bad'}
             <button on:click={login} class="mainAction">Log in with Spotify<img src="./Spotify.png" alt=""/></button>
+            <h1><a href="privacypolicy.txt">Privacy Policy</a></h1>
         {/if}
         {#if authState == 'waiting'}
             <h1 class="mainAction">Please wait...</h1>
@@ -49,5 +50,9 @@
         height: 6rem;
         vertical-align: middle;
         margin-left: 1ch;
+    }
+    a {
+        color: #fbfcfc;
+        text-decoration: none;
     }
 </style>

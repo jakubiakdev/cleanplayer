@@ -44,6 +44,9 @@
     <p>Please consider supporting me</p>
     <p>&copy; jakubiakdev 2023</p>
 </div>
+<div class="info">
+    <p><a href="privacypolicy.txt">Privacy Policy </a></p>
+</div>
 
 <style>
     .settingItem {

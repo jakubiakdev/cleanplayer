@@ -41,7 +41,7 @@
     }
 </style>
 
-{#if q.length > 0 && q != undefined} 
+{#if q != undefined && q?.length > 0 } 
 
     {#each q as song}
         <SongListItem song={song}/>
