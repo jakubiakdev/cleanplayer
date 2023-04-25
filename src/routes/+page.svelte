@@ -322,7 +322,7 @@
         <div class="albumInfo">
             <div class="infoText">
                 <span class="material-symbols-rounded"> album </span>
-                <a href="{albumLink}"> {albumTitle}</a>
+                <a href="{albumLink}" target="_blank"> {albumTitle}</a>
             </div>
             <div class="infoText">
                 {@html context}
