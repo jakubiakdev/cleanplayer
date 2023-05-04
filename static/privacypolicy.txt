@@ -3,7 +3,7 @@ Cleanplayer privacy policy:
 - Your data is used only to communicate with Spotify's API
 - E-mail access is only used for Spotify playback SDK
 - Logging out (by going into settings) will delete your data from your device
-- We gather anonymous usage data on the server (cloudflare pages) which mainly includes the number of visits.
+- We use Cloudflare web analytics, but they do not contain personal data (as per their documentation: https://developers.cloudflare.com/analytics/web-analytics)
 - Please note that this is a community project made by people that care, and we don't *want* to handle your data
 
-Jakubiakdev 23.04.2023
+Jakubiakdev 04.05.2023
