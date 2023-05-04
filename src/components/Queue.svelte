@@ -1,6 +1,7 @@
 <script>
     import SongListItem from "./SongListItem.svelte";
     import { queue } from "../spotifyUtils/player";
+    import { getQueue } from "../spotifyUtils/playerApi";
     let q = []
     queue.subscribe(value => {
         q = value
@@ -47,15 +48,16 @@
         <SongListItem song={song}/>
     {/each}
 
-    <button>
+    {:else}
+    
+    <p>Nothing here yet...</p>
+    
+    {/if}
+    
+    <button on:click={getQueue}>
         <span class="material-symbols-rounded">
             refresh
         </span>
         Refresh
     </button>
-{:else}
-
-<p>Nothing here yet...</p>
-
-{/if}
-
+    

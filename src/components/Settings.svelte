@@ -1,9 +1,11 @@
 <script>
     import { settings } from "../stores";
     import { player } from "../spotifyUtils/player";
-    import { logOut } from "../spotifyUtils/auth";
+    import { getAccessToken, logOut } from "../spotifyUtils/auth";
+    let debugSettings = false
     settings.subscribe(value => {
         player.setVolume(value.volume)
+        debugSettings = value.debugSettings
     })
 
     function handleAlbumArtChange(event) {
@@ -47,6 +49,16 @@
 <div class="info">
     <p><a href="privacypolicy.txt">Privacy Policy </a></p>
 </div>
+
+{#if debugSettings}
+
+ultra secret debug settings:
+<div class="settingItem">
+    <button on:click={ () => {console.log(getAccessToken())}}>
+        access token log
+    </button>
+</div>
+{/if}
 
 <style>
     .settingItem {

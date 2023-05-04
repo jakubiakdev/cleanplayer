@@ -185,7 +185,7 @@
             );
             authState = "waiting";
         }
-        let res = await getAccessToken()
+        let res = getAccessToken()
         if(res == false || res == undefined) {
             authState = "bad"
         } else {

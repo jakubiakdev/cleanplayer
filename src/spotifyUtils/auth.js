@@ -1,6 +1,6 @@
 import { toast } from "@zerodevx/svelte-toast";
 
-export async function getAccessToken(clientId) {
+export function getAccessToken(clientId) {
     if(localStorage.getItem('accessToken') == undefined || localStorage.getItem('refreshToken') == undefined) {
         return false
     }
@@ -10,10 +10,10 @@ export async function getAccessToken(clientId) {
     if ((currentTime - tokenGenerationTime) > expiryTime * 1000) {
         let body = new URLSearchParams()
         body.append("grant_type", "refresh_token")
-        body.append("refresh_token", localStorage.getItem('refresh-token'))
+        body.append("refresh_token", localStorage.getItem('refreshToken'))
         body.append("client_id", "0833c365ed2e41cdaf8119cfe3f34ff9") //TODO: hardcoded client id
 
-        await fetch(`https://accounts.spotify.com/api/token`, {
+        fetch(`https://accounts.spotify.com/api/token`, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: body
@@ -29,9 +29,9 @@ export async function getAccessToken(clientId) {
             localStorage.setItem('refreshToken', data.refresh_token);
             toast.push("Regenerated access token")
         })
-    } else {
-        return localStorage.getItem('accessToken')
     }
+    return localStorage.getItem('accessToken')
+    
 }
 
 export async function redirectToAuthCodeFlow(clientId) {
