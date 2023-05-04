@@ -262,7 +262,6 @@
             font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 48;
         }
     </style>
-<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ee83c8e8de6b4fbdb943af2a186acc9f"}'></script><!-- End Cloudflare Web Analytics -->
 </svelte:head>
 
 {#if authState == "bad" || authState == "waiting"}
