@@ -47,7 +47,8 @@
     <p>&copy; jakubiakdev 2023</p>
 </div>
 <div class="info">
-    <p><a href="privacypolicy.txt">Privacy Policy </a></p>
+    <p>All metadata and audio is from Spotify</p>
+    <p><a href="privacypolicy.txt" target="_blank" rel="noopener noreferrer">Privacy Policy </a></p>
 </div>
 
 {#if debugSettings}

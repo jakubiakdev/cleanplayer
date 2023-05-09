@@ -13,7 +13,7 @@
     <div class="container">
         {#if authState == 'bad'}
             <button on:click={login} class="mainAction">Log in with Spotify<img src="./Spotify.png" alt=""/></button>
-            <h1><a href="privacypolicy.txt">Privacy Policy</a></h1>
+            <h1><a href="privacypolicy.txt" target="_blank">Privacy Policy</a></h1>
         {/if}
         {#if authState == 'waiting'}
             <h1 class="mainAction">Please wait...</h1>

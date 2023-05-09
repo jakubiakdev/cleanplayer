@@ -17,15 +17,17 @@
     import EntranceWindow from "../components/EntranceWindow.svelte";
     import { validate_each_argument } from "svelte/internal";
     import { getAccessToken } from "../spotifyUtils/auth";
+    import MenuWindow from "../components/MenuWindow.svelte";
 
     let showOptions = false;
+    let showAttributionMenu = false
     let authState;
     if (localStorage.getItem("accessToken")) {
         authState = "waiting";
     } else {
         authState = "bad";
     }
-
+    let lastState = {}
     let title = ""; //= "Surfacing";
     let artist = ""; //= "Aran";
     let artwork = ""; //= "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
@@ -112,6 +114,7 @@
     }
 
     function updatePlayerState(state) {
+        lastState = state
         title = state.track_window.current_track.name;
         artist = state.track_window.current_track.artists.map( a => a.name).join(", ");
         // artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
@@ -276,6 +279,40 @@
     <EntranceWindow />
 {/if}
 
+{#if showAttributionMenu}
+        <div class="attibiutionMenu">
+        <div class="item">
+            <a href="https://open.spotify.com/track/{lastState.track_window.current_track.id}" target="_blank">
+                <img src="./Spotify.png" alt="">
+                <span class="text">Song</span>
+                <span class="material-symbols-rounded">
+                    open_in_new
+                </span>
+
+        </div>
+        {#each lastState.track_window.current_track.artists as artist}
+        <div class="item">
+            <a href="https://open.spotify.com/artist/{artist.uri.slice(15)}" target="_blank" >
+                <img src="./Spotify.png" alt="">
+                <span class="text">Artist: {artist.name}</span>
+                <span class="material-symbols-rounded">
+                    open_in_new
+                </span>
+            </a>
+        </div>
+        {/each}
+        <div class="item">
+            <a href="https://open.spotify.com/album/{lastState.track_window.current_track.album.uri.slice(14)}" target="_blank">
+                <img src="./Spotify.png" alt="">
+                <span class="text">Album</span>
+                <span class="material-symbols-rounded">
+                    open_in_new
+                </span>
+            </a>
+        </div>
+    </div>
+{/if}
+
 <SvelteToast />
 
 <div class="unsuportedSizeNotice">
@@ -287,6 +324,14 @@
 <div class="background" style="background-image: url({artwork})" />
 <div class="playerContainer">
     <div class="sideActions">
+        <button class="spotify">
+            <!-- svelte-ignore a11y-click-events-have-key-events  because why would someone blind use an app that offers no functionality other than looks; this is gonna backfire isn't it-->
+            <img src="./SpotifyBlack.png" alt="Open on Spotify" class:imageTurnedOn ={showAttributionMenu} on:click={() => {
+                showAttributionMenu = !showAttributionMenu;
+            }}
+            />
+
+        </button>
         <button class="shuffle" on:click={handleShuffle} disabled={disallows.toggling_shuffle}>
             <span class="material-symbols-rounded" class:turnedOn={shuffle}>
                 shuffle
@@ -322,7 +367,7 @@
         <div class="albumInfo">
             <div class="infoText">
                 <span class="material-symbols-rounded"> album </span>
-                <a href="{albumLink}" target="_blank"> {albumTitle}</a>
+                <a href="{albumLink}" class="clickable" target="_blank"> {albumTitle}</a>
             </div>
             <div class="infoText">
                 {@html context}
@@ -397,9 +442,11 @@
     button {
         background: none;
         border: none;
+    }
+    button span, button img {
         cursor: pointer;
     }
-    img {
+    .albumContainer img {
         height: 100%;
         border-radius: 3ch;
     }
@@ -420,6 +467,14 @@
         height: 5rem;
         backdrop-filter: blur(100px) brightness(1.5);
         margin: 1rem;
+    }
+    .sideActions button img{
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .sideActions button img.imageTurnedOn {
+        filter: invert(1);
     }
     .sideActions button span {
         font-size: 3rem;
@@ -492,6 +547,10 @@
         color: #abafb2;
     }
 
+    .clickable:hover {
+        text-decoration: underline;
+    }
+
     .albumInfo .infoText:nth-child(2) {
         margin-top: 0.25rem;
     }
@@ -523,10 +582,54 @@
         filter: contrast(0.5) brightness(0.5);
         cursor: not-allowed;
     }
+
+    .attibiutionMenu {
+        position: absolute;
+        width: 60vh;
+        height: 70vh;
+        z-index: 10;
+        border-radius: 2ch;
+        left: 50%;
+        top: 45%;
+        transform: translateX(-50%) translateY(-50%);
+        background-color: hsla(0, 0%, 44%, 0.5);
+        backdrop-filter: blur(100px);
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        flex-flow: column;
+    }
+    .attibiutionMenu .item {
+        width: 60%;
+        background: none;
+        border: white 1px solid;
+        border-radius: 3ch;
+        padding: 1rem;
+    }
+    .attibiutionMenu .item span{
+        margin-left: auto;
+    }
+    .attibiutionMenu .item img{
+        height: 1.5rem;
+        margin-right: 1ch;
+    }
+    
+    
+    .attibiutionMenu .item a {
+        cursor: pointer;
+        color: #fbfcfc;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .attibiutionMenu .item a span.text {
+        flex: 1;
+    }
     .unsuportedSizeNotice {
         display: none;
     }
-    @media (max-width: 78rem) {
+    @media (max-width: 95rem) {
         .sideActions {
             display: flex;
             flex-direction: column;
