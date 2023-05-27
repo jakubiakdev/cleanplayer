@@ -42,7 +42,7 @@ export async function handoff(device_id) {
     if(res.status == 200 || res.status == 202) {
       return true
     } else {
-      toast.push("Device handoff might not have succeded. You might have do it from another client by using Spotify connect and choosing this device")
+      toast.push("Device handoff might not have succeeded. You might have do it from another client by using Spotify connect and choosing this device")
     }
   })
 }

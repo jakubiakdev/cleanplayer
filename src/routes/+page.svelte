@@ -228,7 +228,7 @@
                 console.log(
                     "The Web Playback SDK successfully connected to Spotify!"
                 );
-                toast.push("Succesfully connected to Spotify");
+                toast.push("Successfully connected to Spotify");
             }
         });
 
@@ -280,7 +280,7 @@
 {/if}
 
 {#if showAttributionMenu}
-        <div class="attibiutionMenu">
+        <div class="attributionMenu">
         <div class="item">
             <a href="https://open.spotify.com/track/{lastState.track_window.current_track.id}" target="_blank">
                 <img src="./Spotify.png" alt="">
@@ -315,7 +315,7 @@
 
 <SvelteToast />
 
-<div class="unsuportedSizeNotice">
+<div class="unsupportedSizeNotice">
     <h1>This aspect ratio is not yet supported</h1>
     <h3>Please resize the application window</h3>
 </div>
@@ -583,7 +583,7 @@
         cursor: not-allowed;
     }
 
-    .attibiutionMenu {
+    .attributionMenu {
         position: absolute;
         width: 60vh;
         height: 70vh;
@@ -599,23 +599,23 @@
         justify-content: space-evenly;
         flex-flow: column;
     }
-    .attibiutionMenu .item {
+    .attributionMenu .item {
         width: 60%;
         background: none;
         border: white 1px solid;
         border-radius: 3ch;
         padding: 1rem;
     }
-    .attibiutionMenu .item span{
+    .attributionMenu .item span{
         margin-left: auto;
     }
-    .attibiutionMenu .item img{
+    .attributionMenu .item img{
         height: 1.5rem;
         margin-right: 1ch;
     }
     
     
-    .attibiutionMenu .item a {
+    .attributionMenu .item a {
         cursor: pointer;
         color: #fbfcfc;
         text-decoration: none;
@@ -623,10 +623,10 @@
         align-items: center;
         justify-content: center;
     }
-    .attibiutionMenu .item a span.text {
+    .attributionMenu .item a span.text {
         flex: 1;
     }
-    .unsuportedSizeNotice {
+    .unsupportedSizeNotice {
         display: none;
     }
     @media (max-width: 95rem) {
@@ -635,8 +635,8 @@
             flex-direction: column;
             left: 0;
         }
-        /* TODO: this still misess my phone?*/
-        /* .unsuportedSizeNotice {
+        /* TODO: this still misses my phone?*/
+        /* .unsupportedSizeNotice {
             z-index: 100;
             display: block;
             position: absolute;
