@@ -8,16 +8,13 @@
 
     import { settings, playerActivated } from "../stores";
     import { findLargestImageIndex } from "../commonUtils";
-    // settings.subscribe() // TODO: change css based on this!
 
     import { player, createPlayer, deviceId } from "../spotifyUtils/player.js";
 
     import { SvelteToast } from "@zerodevx/svelte-toast";
     import { toast } from "@zerodevx/svelte-toast";
     import EntranceWindow from "../components/EntranceWindow.svelte";
-    import { validate_each_argument } from "svelte/internal";
     import { getAccessToken } from "../spotifyUtils/auth";
-    import MenuWindow from "../components/MenuWindow.svelte";
 
     let showOptions = false;
     let showAttributionMenu = false
@@ -28,23 +25,19 @@
         authState = "bad";
     }
     let lastState = {}
-    let title = ""; //= "Surfacing";
-    let artist = ""; //= "Aran";
-    let artwork = ""; //= "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
-    // let artwork =
-    // "https://lastfm.freetls.fastly.net/i/u/770x0/380d533b9e6dc384c78d5e554646ef5f.jpg";
-    let albumTitle = ""; //= "Aphotic Seeker";
+    let title = ""; 
+    let artist = ""; 
+    let artwork = "";
+    let albumTitle = ""; 
     let albumLink = "#"
-    // let albumDetails = ''//= "Aran · 2020";
     let context = "";
     let playing = false;
-    // let percentage = 0;
     const percentage = tweened(0, {
         duration: 1000, // 1000 because of update interval, and to make the animation smooth even when changing playback device
         easing: linear,
     });
-    let duration = 100000; // = 214007;
-    let position = 0; //= 35926;
+    let duration = 100000; 
+    let position = 0; 
     let shuffle = false;
     let repeat = false;
     let disallows = {
@@ -67,12 +60,6 @@
     });
 
     function handlePlay() {
-        // if(firstLaunch) {
-        //     firstLaunch = false
-        //     setTimeout(() => {
-        //         player.getCurrentState().then(state => {updatePlayerState(state)})
-        //     }, 1500);
-        // }
         if (playing) {
             player.pause().then(() => {
                 playing = false;
@@ -117,7 +104,6 @@
         lastState = state
         title = state.track_window.current_track.name;
         artist = state.track_window.current_track.artists.map( a => a.name).join(", ");
-        // artwork = "https://lastfm.freetls.fastly.net/i/u/770x0/961d2c7203bb86f3d083788840e7c785.jpg"
         // TODO: this transition is quite frankly jarring, find a better way to smoothly transition in album art and background
         artwork =
             state.track_window.current_track.album.images[
@@ -144,13 +130,12 @@
         //         </span> ${state.context.metadata.name}`;
         // }
 
-        // playing = !state.paused;
+        // playing = !state.paused; this caused issues?
         if (state.paused) {
             playing = false;
         } else {
             playing = true;
         }
-        // percentage = 45;
         duration = state.duration;
         position = state.position;
         shuffle = state.shuffle;
@@ -158,17 +143,6 @@
         disallows = state.disallows
         console.log(state);
     }
-
-    // if (authCode) {
-    //     setAccessToken("0833c365ed2e41cdaf8119cfe3f34ff9", authCode) //FIXME: hardcoded client id
-    //         .then((o) => {
-    //             console.log(o)
-    //             fetch("https://api.spotify.com/v1/me", {
-    //                 method: "GET",
-    //                 headers: { Authorization: `Bearer ${o}` },
-    //             }).then((result) => console.log(result.json()));
-    //         });
-    // }
 
     window.onSpotifyWebPlaybackSDKReady = async function () {
         console.log("sdk ready");
@@ -388,17 +362,14 @@
                 player.previousTrack();
             }}
         >
-            <!-- <Icon src={Backward} solid size="80" fill="#fbfcfc" /> -->
             <span class="material-symbols-rounded"> skip_previous </span>
         </button>
 
         <button class="play" on:click={handlePlay}>
             {#if playing}
                 <!-- TODO: https://stackoverflow.com/questions/73278702/correct-way-of-changing-svg-image-in-svelte-->
-                <!-- <Icon src={PauseCircle} solid fill="#fbfcfc" size="100%" /> -->
                 <span class="material-symbols-rounded"> pause_circle </span>
             {:else}
-                <!-- <Icon src={PlayCircle} solid fill="#fbfcfc" size="100%" /> -->
                 <span class="material-symbols-rounded"> play_circle </span>
             {/if}
         </button>
@@ -409,7 +380,6 @@
                 player.nextTrack();
             }}
         >
-            <!-- <Icon src={Forward} solid size="80" fill="#fbfcfc" /> -->
             <span class="material-symbols-rounded"> skip_next </span>
         </button>
     </div>
@@ -445,6 +415,14 @@
     }
     button span, button img {
         cursor: pointer;
+    }
+    button {
+        -webkit-transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;
+    }
+    button:hover {
+        -webkit-filter: brightness(130%);
+        filter: brightness(130%);
     }
     .albumContainer img {
         height: 100%;

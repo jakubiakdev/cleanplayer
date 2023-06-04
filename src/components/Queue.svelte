@@ -26,14 +26,16 @@
     }
 
     button {
-        background-color: rgb(190, 78, 255);
+        background-color: hsl(278, 100%, 65%);
         border: none;
         border-radius: 2ch;
         color: #fbfcfc;
         padding: 1rem;
+        transition: background-color 0.2s ease-in-out;
     }
     button:hover {
         cursor: pointer;
+        background-color: hsl(278, 100%, 50%)    
     }
     span {
         font-size: 2rem;
@@ -54,10 +56,10 @@
     
     {/if}
     
-    <button on:click={getQueue}>
+    <!-- <button on:click={getQueue}> TODO: Find a way to get it working
         <span class="material-symbols-rounded">
             refresh
         </span>
         Refresh
-    </button>
+    </button> -->
     

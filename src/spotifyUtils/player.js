@@ -1,5 +1,4 @@
 import { UAParser } from "ua-parser-js";
-//import svelte store
 import { readable, writable } from "svelte/store";
 import { getQueue } from "./playerApi";
 import { settings } from "../stores";
@@ -14,13 +13,12 @@ let lastQueue
 function getUserAgent() {
     const uap = UAParser(window.navigator.userAgent);
     // console.log(uap);
-    // const result = uap.getResult()
     return `${uap.browser.name} · ${uap.os.name}`;
 }
 
 export async function createPlayer() {
     player = new Spotify.Player({
-        name: `CleanPlayer (${getUserAgent()}) `,
+        name: `cleanplayer (${getUserAgent()}) `,
         getOAuthToken: (cb) => {
             cb(getAccessToken());
         },

@@ -12,8 +12,11 @@
 <MenuWindow>
     <div class="container">
         {#if authState == 'bad'}
-            <button on:click={login} class="mainAction">Log in with Spotify<img src="./Spotify.png" alt=""/></button>
+        <button on:click={login} class="mainAction">Log in with Spotify<img src="./Spotify.png" alt=""/></button>
+        <div>
             <h1><a href="privacypolicy.txt" target="_blank">Privacy Policy</a></h1>
+            <p>This application requires a Spotify Premium account</p>
+        </div>
         {/if}
         {#if authState == 'waiting'}
             <h1 class="mainAction">Please wait...</h1>
@@ -54,5 +57,11 @@
     a {
         color: #fbfcfc;
         text-decoration: none;
+    }
+    p {
+        margin: 0;
+    }
+    div {
+        text-align: center;
     }
 </style>

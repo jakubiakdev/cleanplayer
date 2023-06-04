@@ -56,9 +56,11 @@
         padding: 1rem;
         width: 80%;
         box-shadow: 0 0 10px 5px rgba(124, 124, 124, 0.26);
+        transition: background-color 0.2s ease-in-out;
     }
     button:hover {
         cursor: pointer;
+        background-color: rgba(184, 255, 255, 0.685);
     }
 
 </style>

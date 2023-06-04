@@ -34,7 +34,7 @@
 <!-- <div class="settingItem">
     Rounded album art
     <input type="checkbox" on:change={handleAlbumArtChange} checked="{$settings.roundedCorners}">
-</div> hidden for the time of spotify verification hahaha! -->
+</div> Hidden for now, I actually don't know if it's okay to do this with design guidelines of Spotify -->
 
 </div>
 <div class="settingItem logout">
@@ -42,8 +42,8 @@
 </div>
 
 <div class="info">
-    <p>This application will be fully open source on <a href="https://github.com/jakubiakdev/cleanplayer">Github</a></p>
-    <p>Please consider supporting me</p>
+    <p>This application is fully open source on <a href="https://github.com/jakubiakdev/cleanplayer">Github</a></p>
+    <p>Please consider supporting me by <a href="https://ko-fi.com/jakubiakdev" target="_blank">buying me a coffee</a></p>
     <p>&copy; jakubiakdev 2023</p>
 </div>
 <div class="info">
