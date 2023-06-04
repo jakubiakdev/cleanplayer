@@ -3,7 +3,7 @@ https://cleanplayer.pages.dev/
 
 A Spotify player that is focused on being cleaner than the official app.
 
-A browser SPA written in Svelte using SvelteKit
+Built as a browser SPA written in Svelte using SvelteKit
 
 Note: Spotify Premium is required (this is enforced by the Spotify's Web Playback SDK)
 
