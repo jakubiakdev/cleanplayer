@@ -1,7 +1,7 @@
 <script>
-    import { settings } from "../stores";
-    import { player } from "../spotifyUtils/player";
-    import { getAccessToken, logOut } from "../spotifyUtils/auth";
+    import { settings } from "$lib/stores";
+    import { player } from "$lib/spotifyUtils/player";
+    import { getAccessToken, logOut } from "$lib/spotifyUtils/auth";
     let debugSettings = false
     settings.subscribe(value => {
         player.setVolume(value.volume)

@@ -2,19 +2,19 @@
     import { tweened } from "svelte/motion";
     import { linear } from "svelte/easing";
 
-    import OptionsWindow from "../components/OptionsWindow.svelte";
-    import SpotifyLogin from "../components/SpotifyLogin.svelte";
-    import { SpotifyAuth, SpotifyPlayerApi } from "../spotifyUtils";
+    import OptionsWindow from "$lib/components/OptionsWindow.svelte";
+    import SpotifyLogin from "$lib/components/SpotifyLogin.svelte";
+    import { SpotifyAuth, SpotifyPlayerApi } from "$lib/spotifyUtils";
 
-    import { settings, playerActivated } from "../stores";
-    import { findLargestImageIndex } from "../commonUtils";
+    import { settings, playerActivated } from "$lib/stores";
+    import { findLargestImageIndex } from "$lib/commonUtils";
 
-    import { player, createPlayer, deviceId } from "../spotifyUtils/player.js";
+    import { player, createPlayer, deviceId } from "$lib/spotifyUtils/player.js";
 
     import { SvelteToast } from "@zerodevx/svelte-toast";
     import { toast } from "@zerodevx/svelte-toast";
-    import EntranceWindow from "../components/EntranceWindow.svelte";
-    import { getAccessToken } from "../spotifyUtils/auth";
+    import EntranceWindow from "$lib/components/EntranceWindow.svelte";
+    import { getAccessToken } from "$lib/spotifyUtils/auth";
 
     let showOptions = false;
     let showAttributionMenu = false
