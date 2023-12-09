@@ -3,6 +3,7 @@
 
     import MenuWindow from "./MenuWindow.svelte";
     import { SpotifyAuth } from "$lib/spotifyUtils";
+    import SpotifyLogo from '$lib/assets/Spotify.png'
     function login() {
         SpotifyAuth.redirectToAuthCodeFlow("0833c365ed2e41cdaf8119cfe3f34ff9"); //FIXME: hardcoded client id
     } 
@@ -12,7 +13,7 @@
 <MenuWindow>
     <div class="container">
         {#if authState == 'bad'}
-        <button on:click={login} class="mainAction">Log in with Spotify<img src="./Spotify.png" alt=""/></button>
+        <button on:click={login} class="mainAction">Log in with Spotify<img src={SpotifyLogo} alt=""/></button>
         <div>
             <h1><a href="privacypolicy.txt" target="_blank">Privacy Policy</a></h1>
             <p>This application requires a Spotify Premium account</p>
