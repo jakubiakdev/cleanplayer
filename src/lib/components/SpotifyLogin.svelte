@@ -2,7 +2,7 @@
     export let authState;
 
     import MenuWindow from "./MenuWindow.svelte";
-    import { SpotifyAuth } from "../spotifyUtils";
+    import { SpotifyAuth } from "$lib/spotifyUtils";
     function login() {
         SpotifyAuth.redirectToAuthCodeFlow("0833c365ed2e41cdaf8119cfe3f34ff9"); //FIXME: hardcoded client id
     } 

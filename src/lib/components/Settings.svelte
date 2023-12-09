@@ -1,7 +1,7 @@
 <script>
-    import { settings } from "../stores";
-    import { player } from "../spotifyUtils/player";
-    import { getAccessToken, logOut } from "../spotifyUtils/auth";
+    import { settings } from "$lib/stores";
+    import { player } from "$lib/spotifyUtils/player";
+    import { getAccessToken, logOut } from "$lib/spotifyUtils/auth";
     let debugSettings = false
     settings.subscribe(value => {
         player.setVolume(value.volume)
@@ -31,10 +31,10 @@
     Volume
     <input type="range" min=0 max=1 step="0.01" bind:value={$settings.volume}>
 </div>
-<!-- <div class="settingItem">
+<div class="settingItem">
     Rounded album art
     <input type="checkbox" on:change={handleAlbumArtChange} checked="{$settings.roundedCorners}">
-</div> Hidden for now, I actually don't know if it's okay to do this with design guidelines of Spotify -->
+</div>
 
 </div>
 <div class="settingItem logout">

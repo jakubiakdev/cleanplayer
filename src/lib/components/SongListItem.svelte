@@ -1,5 +1,5 @@
 <script>
-    import { findLargestImageIndex } from "../commonUtils";
+    import { findLargestImageIndex } from "$lib/commonUtils";
     export let song
 </script>
 
