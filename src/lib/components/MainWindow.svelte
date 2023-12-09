@@ -34,6 +34,7 @@
     let albumTitle = ""; 
     let albumLink = "#"
     let context = "";
+    let contextIcon = "";
     let playing = false;
     const percentage = tweened(0, {
         duration: 1000, // 1000 because of update interval, and to make the animation smooth even when changing playback device
@@ -53,7 +54,6 @@
         skipping_prev: false,
     };
     let albumArtRadius;
-    $: albumArtRadius;
     settings.subscribe((value) => {
         if (value.roundedCorners) {
             albumArtRadius = "2ch";
@@ -117,20 +117,19 @@
         albumTitle = state.track_window.current_track.album.name;
         albumLink = `https://open.spotify.com/album/${state.track_window.current_track.album.uri.slice(14)}`; 
         context = "";
+        contextIcon = "";
         if (state.context.uri.startsWith("spotify:playlist")) {
-            context += `<span class="material-symbols-rounded">
-                library_music
-                </span> ${state.context.metadata.name}`;
+            contextIcon = "library_music"
+            context = state.context.metadata.context_description
         }
         if (state.context.uri.startsWith("spotify:user")) {
-            context += `<span class="material-symbols-rounded">
-                favorite
-                </span> Liked Songs`;
+            contextIcon = "favorite"
+            context = "Liked Songs"
         }
         // if(state.context.uri.startsWith("spotify:artist")) { // doesn't like it when you play something from inside artist page
         //     context += `<span class="material-symbols-rounded">
         //         person
-        //         </span> ${state.context.metadata.name}`;
+        //         </span> ${state.context.metadata.context_description}`;
         // }
 
         // playing = !state.paused; this caused issues?
@@ -320,9 +319,14 @@
                 <span class="material-symbols-rounded"> album </span>
                 <a href="{albumLink}" class="clickable" target="_blank"> {albumTitle}</a>
             </div>
+            {#if context}
             <div class="infoText">
-                {@html context}
+                <span class="material-symbols-rounded">
+                    {contextIcon}
+                </span>
+                {context}
             </div>
+            {/if}
         </div>
         <!-- <div>{albumDetails}</div> TODO: check if we have another way of accessing it? WebPlaybackTrack doesn't seem to have one -->
     </div>
