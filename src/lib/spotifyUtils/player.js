@@ -1,7 +1,7 @@
 import { UAParser } from "ua-parser-js";
 import { readable, writable } from "svelte/store";
 import { getQueue } from "./playerApi";
-import { settings } from "../stores";
+import { settings } from "$lib/stores";
 import { getAccessToken } from "./auth";
 
 import { get } from 'svelte/store'

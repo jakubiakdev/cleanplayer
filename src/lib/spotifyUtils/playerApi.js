@@ -1,5 +1,5 @@
 import { toast } from "@zerodevx/svelte-toast"
-import { SpotifyAuth } from '.'
+import { SpotifyAuth } from '$lib/spotifyUtils'
 
 export async function setRepeat(option, device_id) {
     await fetch(`https://api.spotify.com/v1/me/player/repeat?state=${option}&device_id=${device_id}`, {

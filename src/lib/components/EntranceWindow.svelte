@@ -1,9 +1,9 @@
 <script>
 
     import MenuWindow from "./MenuWindow.svelte";
-    import { player, deviceId } from "../spotifyUtils/player";
-    import {handoff } from "../spotifyUtils/playerApi"
-    import { playerActivated } from "../stores";
+    import { player, deviceId } from "$lib/spotifyUtils/player";
+    import { handoff } from "$lib/spotifyUtils/playerApi"
+    import { playerActivated } from "$lib/stores";
     import { UAParser } from "ua-parser-js";
 </script>
 
