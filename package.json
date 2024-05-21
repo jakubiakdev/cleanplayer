@@ -13,7 +13,7 @@
 		"@sveltejs/kit": "^1.30.4",
 		"@zerodevx/svelte-toast": "^0.9.3",
 		"svelte": "^3.54.0",
-		"vite": "^4.5.2"
+		"vite": "^4.5.3"
 	},
 	"type": "module",
 	"dependencies": {
