@@ -270,17 +270,14 @@
     <h3>Please resize the application window</h3>
 </div>
 
-<div class="progress" style="width: {$percentage}vw;" />
-<div class="background" style="background-image: url({artwork})" />
+<div class="progress" style="width: {$percentage}vw;"></div>
+<div class="background" style="background-image: url({artwork})"></div>
 <div class="playerContainer">
     <div class="sideActions">
-        <button class="spotify">
-            <!-- svelte-ignore a11y-click-events-have-key-events  because why would someone blind use an app that offers no functionality other than looks; this is gonna backfire isn't it-->
-            <img src={SpotifyBlackLogo} alt="Open on Spotify" class:imageTurnedOn ={showAttributionMenu} on:click={() => {
-                showAttributionMenu = !showAttributionMenu;
-            }}
-            />
-
+        <button class="spotify" on:click={() => {
+            showAttributionMenu = !showAttributionMenu;
+        }}>
+            <img src={SpotifyBlackLogo} alt="Open on Spotify" class:imageTurnedOn={showAttributionMenu} />
         </button>
         <button class="shuffle" on:click={handleShuffle} disabled={disallows.toggling_shuffle}>
             <span class="material-symbols-rounded" class:turnedOn={shuffle}>
